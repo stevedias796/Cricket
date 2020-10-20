@@ -188,8 +188,19 @@ def best_batsmen(name, type, year, batting_details):
             if players == copy_players:
                 player_count += 1
         # print(players, "no of years played: ",player_count)
-        batting_details[players]['Average'] = batting_details[players]['Average'] / player_count
-        batting_details[players]['Strike rate'] = batting_details[players]['Strike rate'] / player_count
+        batting_details[players] = {
+            'Match type': batting_details[players]['Match type'],
+            'Year': batting_details[players]['Year'],
+            'Player name': players,
+            'Matches': batting_details[players]['Matches'],
+            'Innings': batting_details[players]['Innings'],
+            'Runs': batting_details[players]['Runs'],
+            'Average': round(batting_details[players]['Average'] / player_count, 2),
+            'Strike rate': round(batting_details[players]['Strike rate'] / player_count, 2),
+            'Role': 'Batsman'
+        }
+        #batting_details[players]['Average'] = batting_details[players]['Average'] / player_count
+        #batting_details[players]['Strike rate'] = batting_details[players]['Strike rate'] / player_count
         player_count = 0
         # print(batting_details)
         if batting_details[players]['Match type'] == 'ODI' and batting_details[players]['Average'] >= 40 and batting_details[players]['Strike rate'] >= 85:
@@ -318,8 +329,21 @@ def best_bowlers(name, type, year, batting_details):
             if players == copy_players:
                 player_count += 1
         # print(players, "no of years played: ",player_count)
-        batting_details[players]['Average'] = batting_details[players]['Average'] / player_count
-        batting_details[players]['Eco'] = batting_details[players]['Eco'] / player_count
+        batting_details[players] = {
+            'Match type': batting_details[players]['Match type'],
+            'Year': batting_details[players]['Year'],
+            'Player name': players,
+            'Matches': batting_details[players]['Matches'],
+            'Overs': batting_details[players]['Overs'],
+            'Balls': batting_details[players]['Balls'],
+            'Wickets': batting_details[players]['Wickets'],
+            'Average': round(batting_details[players]['Average'] / player_count, 2),
+            'Eco': round(batting_details[players]['Eco'] / player_count, 2),
+            'Runs': batting_details[players]['Runs'],
+            'Role': 'Bowler'
+        }
+        #batting_details[players]['Average'] = batting_details[players]['Average'] / player_count
+        #batting_details[players]['Eco'] = batting_details[players]['Eco'] / player_count
         player_count = 0
         # print(batting_details)
         if batting_details[players]['Match type'] == 'ODI' and batting_details[players]['Average'] <= 50 and batting_details[players]['Eco'] < 6:
