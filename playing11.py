@@ -114,9 +114,11 @@ def best_batsmen(name, type, year, batting_details):
             break
         url = 'https://www.cricbuzz.com/cricket-team/India/2/stats-table/most-runs/' + str(type) + '/' + str(
             i) + '/all/'
+        #print(url)
         url_data = requests.get(url)
         soup = BeautifulSoup(url_data.text, 'html.parser')
         table_cont = soup.find_all('tbody')[0].find_all('tr', {'class': 'cb-srs-stats-tr'})
+        #print(table_cont)
         if table_cont is not None:
             for tr in table_cont:
                 tds = tr.find_all('td')
@@ -152,21 +154,34 @@ def best_batsmen(name, type, year, batting_details):
                             'Role': 'Batsman'
                         }
                     else:
-                        batting_details[player]['Match type'] = match_type
-                        batting_details[player]['Year'] = year
-                        batting_details[player]['Player name'] = player
-                        batting_details[player]['Role'] = 'Batsman'
-                        batting_details[player]['Matches'] = int(batting_details[player]['Matches']) + int(matches)
-                        batting_details[player]['Innings'] = int(batting_details[player]['Innings']) + int(innings)
-                        batting_details[player]['Runs'] = int(batting_details[player]['Runs']) + int(runs)
-                        batting_details[player]['Average'] = round(float(batting_details[player]['Average']) + float(avg), 2)
-                        batting_details[player]['Strike rate'] = round(float(
-                            batting_details[player]['Strike rate']) + float(sr), 2)
+                        batting_details[player] = {
+                            'Match type': match_type,
+                            'Year': year,
+                            'Player name': player,
+                            'Matches': int(batting_details[player]['Matches']) + int(matches),
+                            'Innings': int(batting_details[player]['Innings'])+ int(innings),
+                            'Runs': int(batting_details[player]['Runs']) + int(runs),
+                            'Average': round(float(batting_details[player]['Average']) + float(avg), 2),
+                            'Strike rate': round(float(
+                            batting_details[player]['Strike rate']) + float(sr), 2),
+                            'Role': 'Batsman'
+                        }
+                        # batting_details[player]['Match type'] = match_type
+                        # batting_details[player]['Year'] = year
+                        # batting_details[player]['Player name'] = player
+                        # batting_details[player]['Role'] = 'Batsman'
+                        # batting_details[player]['Matches'] = int(batting_details[player]['Matches']) + int(matches)
+                        # batting_details[player]['Innings'] = int(batting_details[player]['Innings']) + int(innings)
+                        # batting_details.update({player: {'Runs': int(batting_details[player]['Runs']) + int(runs)}})
+                        # print(batting_details)
+                        # batting_details[player]['Average'] = round(float(batting_details[player]['Average']) + float(avg), 2)
+                        # batting_details[player]['Strike rate'] = round(float(
+                        #     batting_details[player]['Strike rate']) + float(sr), 2)
                 else:
                     continue
         # print(batting_details)
     player_list_copy = player_list.copy()
-    # print(player_list_copy)
+    #print(player_list_copy)
     # print(set(player_list))
     for players in set(player_list):
         for copy_players in player_list_copy:
@@ -180,7 +195,7 @@ def best_batsmen(name, type, year, batting_details):
         if batting_details[players]['Match type'] == 'ODI' and batting_details[players]['Average'] >= 40 and batting_details[players]['Strike rate'] >= 85:
             playing_11.append(players)
             continue
-        elif batting_details[players]['Match type'] == 'Test' and batting_details[players]['Average'] >= 30:
+        elif batting_details[players]['Match type'] == 'Test' and batting_details[players]['Average'] >= 40:
             playing_11.append(players)
             continue
         elif batting_details[players]['Match type'] == 'T20' and batting_details[players]['Average'] >= 25 and batting_details[players]['Strike rate'] >= 100:
@@ -195,7 +210,7 @@ def best_batsmen(name, type, year, batting_details):
         if len(batting_details) > 7:
             del batting_details[each_player]
     # render_template('/submit.html', name=name, type=type, years=year)
-    #print(batting_details, len(batting_details))
+    print(batting_details, len(batting_details))
 
 
 def best_bowlers(name, type, year, batting_details):
@@ -267,17 +282,30 @@ def best_bowlers(name, type, year, batting_details):
                             'Role': 'Bowler'
                         }
                     else:
-                        batting_details[player]['Match type'] = match_type
-                        batting_details[player]['Year'] = year
-                        batting_details[player]['Player name'] = player
-                        batting_details[player]['Role'] = 'Bowler'
-                        batting_details[player]['Matches'] = int(batting_details[player]['Matches']) + int(matches)
-                        batting_details[player]['Overs'] = int(batting_details[player]['Overs']) + int(overs)
-                        batting_details[player]['Balls'] = int(batting_details[player]['Balls']) + int(balls)
-                        batting_details[player]['Wickets'] = int(batting_details[player]['Wickets']) + int(wckts)
-                        batting_details[player]['Average'] = round(float(batting_details[player]['Average']) + float(avg), 2)
-                        batting_details[player]['Eco'] = round(batting_details[player]['Eco'] + player_economy[player]['Eco'], 2)
-                        batting_details[player]['Runs'] = int(batting_details[player]['Runs']) + int(runs)
+                        batting_details[player] = {
+                            'Match type': match_type,
+                            'Year': year,
+                            'Player name': player,
+                            'Matches': int(batting_details[player]['Matches']) + int(matches),
+                            'Overs': int(batting_details[player]['Overs']) + int(overs),
+                            'Balls': int(batting_details[player]['Balls']) + int(balls),
+                            'Wickets': int(batting_details[player]['Wickets']) + int(wckts),
+                            'Average': round(float(batting_details[player]['Average']) + float(avg), 2),
+                            'Eco': round(batting_details[player]['Eco'] + player_economy[player]['Eco'], 2),
+                            'Runs': int(batting_details[player]['Runs']) + int(runs),
+                            'Role': 'Bowler'
+                        }
+                        # batting_details[player]['Match type'] = match_type
+                        # batting_details[player]['Year'] = year
+                        # batting_details[player]['Player name'] = player
+                        # batting_details[player]['Role'] = 'Bowler'
+                        # batting_details[player]['Matches'] = int(batting_details[player]['Matches']) + int(matches)
+                        # batting_details[player]['Overs'] = int(batting_details[player]['Overs']) + int(overs)
+                        # batting_details[player]['Balls'] = int(batting_details[player]['Balls']) + int(balls)
+                        # batting_details[player]['Wickets'] = int(batting_details[player]['Wickets']) + int(wckts)
+                        # batting_details[player]['Average'] = round(float(batting_details[player]['Average']) + float(avg), 2)
+                        # batting_details[player]['Eco'] = round(batting_details[player]['Eco'] + player_economy[player]['Eco'], 2)
+                        # batting_details[player]['Runs'] = int(batting_details[player]['Runs']) + int(runs)
                 else:
                     continue
         # print(batting_details)
