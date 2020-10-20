@@ -16,6 +16,12 @@
 
   padding: 10px;
 }
+body{
+background-color: #212525;
+}
+h3{
+color: whitesmoke;
+}
 </style>
       <script>
           function submit_form()
@@ -43,7 +49,13 @@
 
     <br><br>
     <div class='prod-center'>
-        <h3>Your team must have these outstanding players </h3>
+        {% if match_type == '1' %}
+        <h3>Your Test team must have these players based on their performance in {{ year }}</h3>
+        {% elif match_type == '2' %}
+        <h3>Your ODI team must have these players based on their performance in {{ year }}</h3>
+        {% elif match_type == '3' %}
+        <h3>Your T20 team must have these players based on their performance in {{ year }}</h3>
+        {% endif %}
         <div class="row">
         {% for key, value in final_players.items() %}
             {% if value['Role'] == 'Batsman' %}
