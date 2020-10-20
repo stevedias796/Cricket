@@ -20,11 +20,23 @@
       <script>
           function submit_form()
           {
-            alert('This might take few seconds.....');
             var team = document.getElementById('team').value;
             var matchtype = document.getElementById('type').value;
             var from_year = document.getElementById('min_year').value;
             var to_year = document.getElementById('max_year').value;
+	    if(from_year != '2020' && from_year > to_year)
+	    {
+		    alert("From year cannot be greater than To year");
+		    return false;
+		    
+	    }
+	    if((parseInt(to_year) - parseInt(from_year)) >= 2)
+	    {
+		    alert("Year span cannot be more than one year");
+		    return false;
+		    
+	    }
+	    alert('Predicting your team, This might take few seconds.....');
             document.cric_form.action = "/submit/"+ team +"/"+ matchtype +"/"+ from_year +"-"+ to_year;
             document.cric_form.submit();
           }
