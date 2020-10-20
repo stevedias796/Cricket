@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>Cricket team</title>
+      <style>
+.prod-center {
+  margin: auto;
+  width: 60%;
+
+  padding: 10px;
+}
+</style>
+      <script>
+          function submit_form()
+          {
+            alert('This might take few seconds.....');
+            var team = document.getElementById('team').value;
+            var matchtype = document.getElementById('type').value;
+            var from_year = document.getElementById('min_year').value;
+            var to_year = document.getElementById('max_year').value;
+            document.cric_form.action = "/submit/"+ team +"/"+ matchtype +"/"+ from_year +"-"+ to_year;
+            document.cric_form.submit();
+          }
+      </script>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+  <ul class="navbar-nav">
+	<li class="nav-item">
+       <!--<a style="color:white; font-size:20px; " href="scribergen.wixsite.com/srape-transcribe"><b>ScriberGen</b></a>-->
+	   <a class="navbar-brand" href="/home"><b>Cric-Coder</b></a>
+    </li>
+  </ul>
+</nav>
+
+    <br><br>
+    <div class='prod-center'>
+        <form name="cric_form" method="POST">
+
+      <div class="form-group">
+        <label for="team">Select Team</label>
+        <select class="form-control" id="team">
+          <option value="India|2">India</option>
+          <option value="India|2">India</option>
+          <option value="India|2">India</option>
+          <option value="India|2">India</option>
+          <option value="India|2">India</option>
+        </select>
+      </div>
+            <div class="form-group">
+        <label for="type">Match type</label>
+        <select class="form-control" id="type">
+          <option value="1">Test</option>
+          <option value="2">ODI</option>
+          <option value="3">T20</option>
+        </select>
+      </div>
+        <div class="form-group">
+            <div class="form-row">
+                <div class="col-md-4 mb-3">
+                    <label for="min_year">From year</label>
+                    <select class="form-control" id="min_year">
+                      <option value="2020">2020</option>
+                      <option value="2019">2019</option>
+                      <option value="2018">2018</option>
+                      <option value="2017">2017</option>
+                      <option value="2016">2016</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="max_year">To year</label>
+                    <select class="form-control" id="max_year">
+                      <option value="2020">2020</option>
+                      <option value="2019">2019</option>
+                      <option value="2018">2018</option>
+                      <option value="2017">2017</option>
+                      <option value="2016">2016</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+             <button class="btn btn-primary" onclick="submit_form()" type="button">Get Team</button>
+        </form>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+</html>
