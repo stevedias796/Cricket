@@ -4,6 +4,7 @@ from flask import Flask, render_template, jsonify, request
 import datetime
 import base64
 import os
+import multiprocessing
 import operator
 
 app = Flask(__name__)
@@ -19,12 +20,20 @@ def home():
 def submit(name, type, year):
     print(datetime.datetime.now())
     batting_result = best_batsmen(name, type, year)
-    print("--------------------------------------------------")
+    #manager = multiprocessing.Manager()
+    #return_dict = {}
+    #return_dict1 = {}
+    #jobs = []
+    # p1 = multiprocessing.Process(target=best_batsmen, args=(name, type, year, *return_dict))
+    # p2 = multiprocessing.Process(target=best_bowlers, args=(name, type, year, *return_dict1))
+    # p1.start()
+    # p2.start()
+    # p1.join()
+    # p2.join()
     print(batting_result, len(batting_result))
     bowling_result = best_bowlers(name, type, year)
     print(bowling_result, len(bowling_result))
     batting_result.update(bowling_result)
-    print(batting_result, len(batting_result))
     if request.method == "GET":
         return jsonify(batting_result)
     elif request.method == "POST":
@@ -108,15 +117,15 @@ def best_batsmen(name, type, year):
             for tr in table_cont:
                 tds = tr.find_all('td')
                 player = tds[0].a.get_text()
-                image_page = tds[0].a.get('href')
+                #image_page = tds[0].a.get('href')
                 matches = tds[1].get_text()
                 innings = tds[2].get_text()
                 runs = tds[3].get_text()
                 runs = runs.replace(',', '')
                 avg = tds[4].get_text()
                 sr = tds[5].get_text()
-                four = tds[6].get_text()
-                six = tds[7].get_text()
+                #four = tds[6].get_text()
+                #six = tds[7].get_text()
                 '''Check if player is in best avg list and best strike rate list'''
                 avg_url = 'https://www.cricbuzz.com/cricket-team/India/2/stats-table/highest-avg/' + str(
                     type) + '/' + str(i) + '/all'
@@ -138,19 +147,13 @@ def best_batsmen(name, type, year):
                                 'Runs': int(runs),
                                 'Average': float(avg),
                                 'Strike rate': float(sr),
-                                'Role': 'Batsman',
-                                '4s': four,
-                                '6s': six,
-                                'img': image_page
+                                'Role': 'Batsman'
                             }
                         else:
                             batting_details[player]['Match type'] = match_type
                             batting_details[player]['Year'] = year
                             batting_details[player]['Player name'] = player
-                            batting_details[player]['4s'] = four
-                            batting_details[player]['6s'] = six
                             batting_details[player]['Role'] = 'Batsman'
-                            batting_details[player]['img'] = image_page
                             batting_details[player]['Matches'] = int(batting_details[player]['Matches']) + int(matches)
                             batting_details[player]['Innings'] = int(batting_details[player]['Innings']) + int(innings)
                             batting_details[player]['Runs'] = int(batting_details[player]['Runs']) + int(runs)
@@ -180,26 +183,11 @@ def best_batsmen(name, type, year):
             not_playing_11.append(players)
             # print(playing_11)
             # print(playing_11)
-    print(batting_details)
-    print(len(batting_details))
+    #print(batting_details)
+    #print(len(batting_details))
     for each_player in not_playing_11:
         if len(batting_details) > 7:
             del batting_details[each_player]
-    # for key in batting_details.items():
-    for key, value in batting_details.items():
-        '''Getting palyer profile pic'''
-        page_data = requests.get('https://www.cricbuzz.com' + value['img'])
-        image_soup = BeautifulSoup(page_data.text, 'html.parser')
-        image = image_soup.find('img', {'title': 'profile image'})
-        image_url = image.get('src')
-        image_data = requests.get('https://www.cricbuzz.com' + image_url)
-        print(image_data.content)
-        encoded_img = base64.b64encode(image_data.content)
-        pathname = directory + "/static/India/" + key + ".jpg"
-        with open(pathname, 'wb') as f:
-            decoded_image_data = base64.decodebytes(encoded_img)
-            f.write(decoded_image_data)
-        '''end of downloading images'''
     print(datetime.datetime.now())
     # render_template('/submit.html', name=name, type=type, years=year)
     return batting_details
@@ -239,7 +227,7 @@ def best_bowlers(name, type, year):
             for tr in table_cont:
                 tds = tr.find_all('td')
                 player = tds[0].a.get_text()
-                image_page = tds[0].a.get('href')
+                #image_page = tds[0].a.get('href')
                 matches = tds[1].get_text()
                 overs = tds[2].get_text()
                 balls = tds[3].get_text()
@@ -248,8 +236,8 @@ def best_bowlers(name, type, year):
                 avg = tds[5].get_text()
                 runs = tds[6].get_text()
                 runs = runs.replace(',', '')
-                four_w = tds[7].get_text()
-                five_w = tds[8].get_text()
+                #four_w = tds[7].get_text()
+                #five_w = tds[8].get_text()
                 '''Check if player is in best avg list and best strike rate list'''
                 avg_url = 'https://www.cricbuzz.com/cricket-team/India/2/stats-table/lowest-avg/' + str(type) + '/' + str(i) + '/all'
                 lv_return = best_avg_sr(avg_url, player)
@@ -273,17 +261,13 @@ def best_bowlers(name, type, year):
                             'Average': float(avg),
                             'Eco': player_economy[player]['Eco'],
                             'Runs': int(runs),
-                            'Role': 'Bowler',
-                            '4Fers': int(four_w),
-                            '5Fers': int(five_w),
-                            'img': image_page
+                            'Role': 'Bowler'
                         }
                     else:
                         batting_details[player]['Match type'] = match_type
                         batting_details[player]['Year'] = year
                         batting_details[player]['Player name'] = player
                         batting_details[player]['Role'] = 'Bowler'
-                        batting_details[player]['img'] = image_page
                         batting_details[player]['Matches'] = int(batting_details[player]['Matches']) + int(matches)
                         batting_details[player]['Overs'] = int(batting_details[player]['Overs']) + int(overs)
                         batting_details[player]['Balls'] = int(batting_details[player]['Balls']) + int(balls)
@@ -291,9 +275,6 @@ def best_bowlers(name, type, year):
                         batting_details[player]['Average'] = round(float(batting_details[player]['Average']) + float(avg), 2)
                         batting_details[player]['Eco'] = round(batting_details[player]['Eco'] + player_economy[player]['Eco'], 2)
                         batting_details[player]['Runs'] = int(batting_details[player]['Runs']) + int(runs)
-                        batting_details[player]['4Fers'] = int(batting_details[player]['4Fers']) + int(four_w)
-                        batting_details[player]['5Fers'] = int(batting_details[player]['5Fers']) + int(five_w)
-
                         player_flag += 1
                 else:
                     continue
@@ -318,29 +299,15 @@ def best_bowlers(name, type, year):
             not_playing_11.append(players)
             # print(playing_11)
             # print(playing_11)
-    print(batting_details)
-    print(len(batting_details))
+    #print(batting_details)
+    #print(len(batting_details))
     for each_player in not_playing_11:
         if len(batting_details) > 6:
             del batting_details[each_player]
-    # for key in batting_details.items():
-    for key, value in batting_details.items():
-        '''Getting palyer profile pic'''
-        page_data = requests.get('https://www.cricbuzz.com' + value['img'])
-        image_soup = BeautifulSoup(page_data.text, 'html.parser')
-        image = image_soup.find('img', {'title': 'profile image'})
-        image_url = image.get('src')
-        image_data = requests.get('https://www.cricbuzz.com' + image_url)
-        print(image_data.content)
-        encoded_img = base64.b64encode(image_data.content)
-        pathname = directory + "/static/India/" + key + ".jpg"
-        with open(pathname, 'wb') as f:
-            decoded_image_data = base64.decodebytes(encoded_img)
-            f.write(decoded_image_data)
-        '''end of downloading images'''
     print(datetime.datetime.now())
     # render_template('/submit.html', name=name, type=type, years=year)
-    return batting_details
+    return_dict = batting_details.copy()
+    return return_dict
 
 
 if __name__ == '__main__':
