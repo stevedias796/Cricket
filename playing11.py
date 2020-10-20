@@ -127,19 +127,6 @@ def best_batsmen(name, type, year):
                     lv_ret = best_avg_sr(sr_url, player)
                     if lv_ret == 0:
                         player_list.append(player)
-                        '''Getting palyer profile pic'''
-                        page_data = requests.get('https://www.cricbuzz.com' + image_page)
-                        image_soup = BeautifulSoup(page_data.text, 'html.parser')
-                        image = image_soup.find('img', {'title': 'profile image'})
-                        image_url = image.get('src')
-                        image_data = requests.get('https://www.cricbuzz.com' + image_url)
-                        print(image_data.content)
-                        encoded_img = base64.b64encode(image_data.content)
-                        pathname = directory + "/static/India/" + player + ".jpg"
-                        with open(pathname, 'wb') as f:
-                            decoded_image_data = base64.decodebytes(encoded_img)
-                            f.write(decoded_image_data)
-                        '''end of downloading images'''
                         if player not in batting_details.keys():
                             player_flag = 1
                             batting_details[player] = {
@@ -153,7 +140,8 @@ def best_batsmen(name, type, year):
                                 'Strike rate': float(sr),
                                 'Role': 'Batsman',
                                 '4s': four,
-                                '6s': six
+                                '6s': six,
+                                'img': image_page
                             }
                         else:
                             batting_details[player]['Match type'] = match_type
@@ -162,12 +150,13 @@ def best_batsmen(name, type, year):
                             batting_details[player]['4s'] = four
                             batting_details[player]['6s'] = six
                             batting_details[player]['Role'] = 'Batsman'
+                            batting_details[player]['img'] = image_page
                             batting_details[player]['Matches'] = int(batting_details[player]['Matches']) + int(matches)
                             batting_details[player]['Innings'] = int(batting_details[player]['Innings']) + int(innings)
                             batting_details[player]['Runs'] = int(batting_details[player]['Runs']) + int(runs)
-                            batting_details[player]['Average'] = float(batting_details[player]['Average']) + float(avg)
-                            batting_details[player]['Strike rate'] = float(
-                                batting_details[player]['Strike rate']) + float(sr)
+                            batting_details[player]['Average'] = round(float(batting_details[player]['Average']) + float(avg), 2)
+                            batting_details[player]['Strike rate'] = round(float(
+                                batting_details[player]['Strike rate']) + float(sr), 2)
                             player_flag += 1
                 else:
                     continue
@@ -197,6 +186,20 @@ def best_batsmen(name, type, year):
         if len(batting_details) > 7:
             del batting_details[each_player]
     # for key in batting_details.items():
+    for key, value in batting_details.items():
+        '''Getting palyer profile pic'''
+        page_data = requests.get('https://www.cricbuzz.com' + value['img'])
+        image_soup = BeautifulSoup(page_data.text, 'html.parser')
+        image = image_soup.find('img', {'title': 'profile image'})
+        image_url = image.get('src')
+        image_data = requests.get('https://www.cricbuzz.com' + image_url)
+        print(image_data.content)
+        encoded_img = base64.b64encode(image_data.content)
+        pathname = directory + "/static/India/" + key + ".jpg"
+        with open(pathname, 'wb') as f:
+            decoded_image_data = base64.decodebytes(encoded_img)
+            f.write(decoded_image_data)
+        '''end of downloading images'''
     print(datetime.datetime.now())
     # render_template('/submit.html', name=name, type=type, years=year)
     return batting_details
@@ -256,18 +259,6 @@ def best_bowlers(name, type, year):
                 #print(player_economy)
                 if lv_return == 0 or lv_ret == 0:
                     player_list.append(player)
-                    '''Getting palyer profile pic'''
-                    page_data = requests.get('https://www.cricbuzz.com'+image_page)
-                    image_soup = BeautifulSoup(page_data.text, 'html.parser')
-                    image = image_soup.find('img', {'title': 'profile image'})
-                    image_url = image.get('src')
-                    image_data = requests.get('https://www.cricbuzz.com'+image_url)
-                    print(image_data.content)
-                    encoded_img = base64.b64encode(image_data.content)
-                    pathname = directory+"/static/India/"+player+".jpg"
-                    with open(pathname, 'wb') as f:
-                        decoded_image_data = base64.decodebytes(encoded_img)
-                        f.write(decoded_image_data)
                     if player not in batting_details.keys():
                         player_flag = 1
                         #print(player_economy)
@@ -284,19 +275,21 @@ def best_bowlers(name, type, year):
                             'Runs': int(runs),
                             'Role': 'Bowler',
                             '4Fers': int(four_w),
-                            '5Fers': int(five_w)
+                            '5Fers': int(five_w),
+                            'img': image_page
                         }
                     else:
                         batting_details[player]['Match type'] = match_type
                         batting_details[player]['Year'] = year
                         batting_details[player]['Player name'] = player
                         batting_details[player]['Role'] = 'Bowler'
+                        batting_details[player]['img'] = image_page
                         batting_details[player]['Matches'] = int(batting_details[player]['Matches']) + int(matches)
                         batting_details[player]['Overs'] = int(batting_details[player]['Overs']) + int(overs)
                         batting_details[player]['Balls'] = int(batting_details[player]['Balls']) + int(balls)
                         batting_details[player]['Wickets'] = int(batting_details[player]['Wickets']) + int(wckts)
-                        batting_details[player]['Average'] = float(batting_details[player]['Average']) + float(avg)
-                        batting_details[player]['Eco'] = batting_details[player]['Eco'] + player_economy[player]['Eco']
+                        batting_details[player]['Average'] = round(float(batting_details[player]['Average']) + float(avg), 2)
+                        batting_details[player]['Eco'] = round(batting_details[player]['Eco'] + player_economy[player]['Eco'], 2)
                         batting_details[player]['Runs'] = int(batting_details[player]['Runs']) + int(runs)
                         batting_details[player]['4Fers'] = int(batting_details[player]['4Fers']) + int(four_w)
                         batting_details[player]['5Fers'] = int(batting_details[player]['5Fers']) + int(five_w)
@@ -331,6 +324,20 @@ def best_bowlers(name, type, year):
         if len(batting_details) > 6:
             del batting_details[each_player]
     # for key in batting_details.items():
+    for key, value in batting_details.items():
+        '''Getting palyer profile pic'''
+        page_data = requests.get('https://www.cricbuzz.com' + value['img'])
+        image_soup = BeautifulSoup(page_data.text, 'html.parser')
+        image = image_soup.find('img', {'title': 'profile image'})
+        image_url = image.get('src')
+        image_data = requests.get('https://www.cricbuzz.com' + image_url)
+        print(image_data.content)
+        encoded_img = base64.b64encode(image_data.content)
+        pathname = directory + "/static/India/" + key + ".jpg"
+        with open(pathname, 'wb') as f:
+            decoded_image_data = base64.decodebytes(encoded_img)
+            f.write(decoded_image_data)
+        '''end of downloading images'''
     print(datetime.datetime.now())
     # render_template('/submit.html', name=name, type=type, years=year)
     return batting_details
