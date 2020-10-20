@@ -5,7 +5,7 @@ import datetime
 import base64
 import os
 import multiprocessing
-import operator
+Import json
 
 app = Flask(__name__)
 
@@ -38,7 +38,7 @@ def submit(name, type, year):
     print(return_dict, len(return_dict))
     print(datetime.datetime.now())
     if request.method == "GET":
-        return jsonify(return_dict)
+        return json.dumps(return_dict.copy())
     elif request.method == "POST":
         return render_template('submit.html', final_players=return_dict, match_type=type, year=year)
     else:
