@@ -11,6 +11,7 @@ app = Flask(__name__)
 
 directory = os.path.dirname(__file__)
 
+
 @app.route('/home')
 def home():
     return render_template('/home.html')
@@ -19,25 +20,27 @@ def home():
 @app.route('/submit/<string:name>/<int:type>/<string:year>', methods=['GET', 'POST'])
 def submit(name, type, year):
     print(datetime.datetime.now())
-    batting_result = best_batsmen(name, type, year)
-    #manager = multiprocessing.Manager()
-    #return_dict = {}
-    #return_dict1 = {}
+    #batting_result = best_batsmen(name, type, year)
+    manager = multiprocessing.Manager()
+    return_dict = manager.dict()
+    return_dict1 = manager.dict()
+    #batting_details = {}
     #jobs = []
-    # p1 = multiprocessing.Process(target=best_batsmen, args=(name, type, year, *return_dict))
-    # p2 = multiprocessing.Process(target=best_bowlers, args=(name, type, year, *return_dict1))
-    # p1.start()
-    # p2.start()
-    # p1.join()
-    # p2.join()
-    print(batting_result, len(batting_result))
-    bowling_result = best_bowlers(name, type, year)
-    print(bowling_result, len(bowling_result))
-    batting_result.update(bowling_result)
+    p1 = multiprocessing.Process(target=best_batsmen, args=(name, type, year, return_dict))
+    p2 = multiprocessing.Process(target=best_bowlers, args=(name, type, year, return_dict1))
+    p1.start()
+    p2.start()
+    p1.join()
+    p2.join()
+    #bowling_result = best_bowlers(name, type, year)
+    #print(bowling_result, len(bowling_result))
+    return_dict.update(return_dict1)
+    print(return_dict, len(return_dict))
+    print(datetime.datetime.now())
     if request.method == "GET":
-        return jsonify(batting_result)
+        return jsonify(return_dict)
     elif request.method == "POST":
-        return render_template('submit.html', final_players=batting_result)
+        return render_template('submit.html', final_players=return_dict)
     else:
         return "Invalid Action"
 
@@ -84,7 +87,7 @@ def best_economy(url, player_name):
     return 1, player_economy
 
 
-def best_batsmen(name, type, year):
+def best_batsmen(name, type, year, batting_details):
     playing_11 = []
     not_playing_11 = []
     years = year.split('-')
@@ -101,9 +104,8 @@ def best_batsmen(name, type, year):
         match_type = 'ODI'
     elif type == 3:
         match_type = 'T20'
-    batting_details = {}
+    #global batting_details
     player_list = []
-    player_flag = 1
     player_count = 0
     for i in reversed(range(int(no_years) + 1)):
         if i < int(min_years):
@@ -137,7 +139,6 @@ def best_batsmen(name, type, year):
                     if lv_ret == 0:
                         player_list.append(player)
                         if player not in batting_details.keys():
-                            player_flag = 1
                             batting_details[player] = {
                                 'Match type': match_type,
                                 'Year': year,
@@ -160,7 +161,6 @@ def best_batsmen(name, type, year):
                             batting_details[player]['Average'] = round(float(batting_details[player]['Average']) + float(avg), 2)
                             batting_details[player]['Strike rate'] = round(float(
                                 batting_details[player]['Strike rate']) + float(sr), 2)
-                            player_flag += 1
                 else:
                     continue
         # print(batting_details)
@@ -183,17 +183,15 @@ def best_batsmen(name, type, year):
             not_playing_11.append(players)
             # print(playing_11)
             # print(playing_11)
-    #print(batting_details)
     #print(len(batting_details))
     for each_player in not_playing_11:
         if len(batting_details) > 7:
             del batting_details[each_player]
-    print(datetime.datetime.now())
     # render_template('/submit.html', name=name, type=type, years=year)
-    return batting_details
+    #print(batting_details, len(batting_details))
 
 
-def best_bowlers(name, type, year):
+def best_bowlers(name, type, year, batting_details):
     playing_11 = []
     not_playing_11 = []
     match_type = ''
@@ -211,10 +209,9 @@ def best_bowlers(name, type, year):
         match_type = 'ODI'
     elif type == 3:
         match_type = 'T20'
-    batting_details = {}
+    #global batting_details
     player_economy = {}
     player_list = []
-    player_flag = 1
     player_count = 0
     for i in reversed(range(int(no_years) + 1)):
         if i < int(min_years):
@@ -248,7 +245,6 @@ def best_bowlers(name, type, year):
                 if lv_return == 0 or lv_ret == 0:
                     player_list.append(player)
                     if player not in batting_details.keys():
-                        player_flag = 1
                         #print(player_economy)
                         batting_details[player] = {
                             'Match type': match_type,
@@ -275,7 +271,6 @@ def best_bowlers(name, type, year):
                         batting_details[player]['Average'] = round(float(batting_details[player]['Average']) + float(avg), 2)
                         batting_details[player]['Eco'] = round(batting_details[player]['Eco'] + player_economy[player]['Eco'], 2)
                         batting_details[player]['Runs'] = int(batting_details[player]['Runs']) + int(runs)
-                        player_flag += 1
                 else:
                     continue
         # print(batting_details)
@@ -299,15 +294,12 @@ def best_bowlers(name, type, year):
             not_playing_11.append(players)
             # print(playing_11)
             # print(playing_11)
-    #print(batting_details)
+
     #print(len(batting_details))
     for each_player in not_playing_11:
         if len(batting_details) > 6:
             del batting_details[each_player]
-    print(datetime.datetime.now())
     # render_template('/submit.html', name=name, type=type, years=year)
-    return_dict = batting_details.copy()
-    return return_dict
 
 
 if __name__ == '__main__':
