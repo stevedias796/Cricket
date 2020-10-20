@@ -135,7 +135,7 @@ def best_batsmen(name, type, year):
                         image_data = requests.get('https://www.cricbuzz.com' + image_url)
                         print(image_data.content)
                         encoded_img = base64.b64encode(image_data.content)
-                        pathname = directory + "/static/India" + player + ".jpg"
+                        pathname = directory + "/static/India/" + player + ".jpg"
                         with open(pathname, 'wb') as f:
                             decoded_image_data = base64.decodebytes(encoded_img)
                             f.write(decoded_image_data)
@@ -264,7 +264,7 @@ def best_bowlers(name, type, year):
                     image_data = requests.get('https://www.cricbuzz.com'+image_url)
                     print(image_data.content)
                     encoded_img = base64.b64encode(image_data.content)
-                    pathname = directory+"/static/India"+player+".jpg"
+                    pathname = directory+"/static/India/"+player+".jpg"
                     with open(pathname, 'wb') as f:
                         decoded_image_data = base64.decodebytes(encoded_img)
                         f.write(decoded_image_data)
