@@ -40,7 +40,7 @@ def submit(name, type, year):
     if request.method == "GET":
         return jsonify(return_dict)
     elif request.method == "POST":
-        return render_template('submit.html', final_players=return_dict)
+        return render_template('submit.html', final_players=return_dict, match_type=type, year=year)
     else:
         return "Invalid Action"
 
@@ -97,7 +97,7 @@ def best_batsmen(name, type, year, batting_details):
     else:
         no_years = years[1]
         min_years = years[0]
-
+    match_type = ''
     if type == 1:
         match_type = 'Test'
     elif type == 2:
@@ -107,6 +107,8 @@ def best_batsmen(name, type, year, batting_details):
     #global batting_details
     player_list = []
     player_count = 0
+    lv_ret = 0
+    lv_return = 0
     for i in reversed(range(int(no_years) + 1)):
         if i < int(min_years):
             break
@@ -132,35 +134,34 @@ def best_batsmen(name, type, year, batting_details):
                 avg_url = 'https://www.cricbuzz.com/cricket-team/India/2/stats-table/highest-avg/' + str(
                     type) + '/' + str(i) + '/all'
                 lv_return = best_avg_sr(avg_url, player)
-                if lv_return == 0:
-                    sr_url = 'https://www.cricbuzz.com/cricket-team/India/2/stats-table/highest-sr/' + str(
-                        type) + '/' + str(i) + '/all'
-                    lv_ret = best_avg_sr(sr_url, player)
-                    if lv_ret == 0:
-                        player_list.append(player)
-                        if player not in batting_details.keys():
-                            batting_details[player] = {
-                                'Match type': match_type,
-                                'Year': year,
-                                'Player name': player,
-                                'Matches': int(matches),
-                                'Innings': int(innings),
-                                'Runs': int(runs),
-                                'Average': float(avg),
-                                'Strike rate': float(sr),
-                                'Role': 'Batsman'
-                            }
-                        else:
-                            batting_details[player]['Match type'] = match_type
-                            batting_details[player]['Year'] = year
-                            batting_details[player]['Player name'] = player
-                            batting_details[player]['Role'] = 'Batsman'
-                            batting_details[player]['Matches'] = int(batting_details[player]['Matches']) + int(matches)
-                            batting_details[player]['Innings'] = int(batting_details[player]['Innings']) + int(innings)
-                            batting_details[player]['Runs'] = int(batting_details[player]['Runs']) + int(runs)
-                            batting_details[player]['Average'] = round(float(batting_details[player]['Average']) + float(avg), 2)
-                            batting_details[player]['Strike rate'] = round(float(
-                                batting_details[player]['Strike rate']) + float(sr), 2)
+                sr_url = 'https://www.cricbuzz.com/cricket-team/India/2/stats-table/highest-sr/' + str(
+                    type) + '/' + str(i) + '/all'
+                lv_ret = best_avg_sr(sr_url, player)
+                if (match_type != 'Test' and lv_return == 0 and lv_ret == 0) or (match_type == 'Test' and lv_return == 0):
+                    player_list.append(player)
+                    if player not in batting_details.keys():
+                        batting_details[player] = {
+                            'Match type': match_type,
+                            'Year': year,
+                            'Player name': player,
+                            'Matches': int(matches),
+                            'Innings': int(innings),
+                            'Runs': int(runs),
+                            'Average': float(avg),
+                            'Strike rate': float(sr),
+                            'Role': 'Batsman'
+                        }
+                    else:
+                        batting_details[player]['Match type'] = match_type
+                        batting_details[player]['Year'] = year
+                        batting_details[player]['Player name'] = player
+                        batting_details[player]['Role'] = 'Batsman'
+                        batting_details[player]['Matches'] = int(batting_details[player]['Matches']) + int(matches)
+                        batting_details[player]['Innings'] = int(batting_details[player]['Innings']) + int(innings)
+                        batting_details[player]['Runs'] = int(batting_details[player]['Runs']) + int(runs)
+                        batting_details[player]['Average'] = round(float(batting_details[player]['Average']) + float(avg), 2)
+                        batting_details[player]['Strike rate'] = round(float(
+                            batting_details[player]['Strike rate']) + float(sr), 2)
                 else:
                     continue
         # print(batting_details)
@@ -176,7 +177,13 @@ def best_batsmen(name, type, year, batting_details):
         batting_details[players]['Strike rate'] = batting_details[players]['Strike rate'] / player_count
         player_count = 0
         # print(batting_details)
-        if batting_details[players]['Average'] >= 40 and batting_details[players]['Strike rate'] >= 85:
+        if batting_details[players]['Match type'] == 'ODI' and batting_details[players]['Average'] >= 40 and batting_details[players]['Strike rate'] >= 85:
+            playing_11.append(players)
+            continue
+        elif batting_details[players]['Match type'] == 'Test' and batting_details[players]['Average'] >= 30:
+            playing_11.append(players)
+            continue
+        elif batting_details[players]['Match type'] == 'T20' and batting_details[players]['Average'] >= 25 and batting_details[players]['Strike rate'] >= 100:
             playing_11.append(players)
             continue
         else:
@@ -287,7 +294,13 @@ def best_bowlers(name, type, year, batting_details):
         batting_details[players]['Eco'] = batting_details[players]['Eco'] / player_count
         player_count = 0
         # print(batting_details)
-        if batting_details[players]['Average'] <= 50 and batting_details[players]['Eco'] < 6:
+        if batting_details[players]['Match type'] == 'ODI' and batting_details[players]['Average'] <= 50 and batting_details[players]['Eco'] < 6:
+            playing_11.append(players)
+            continue
+        elif batting_details[players]['Match type'] == 'Test' and batting_details[players]['Average'] <= 40 and batting_details[players]['Eco'] <= 3.5:
+            playing_11.append(players)
+            continue
+        elif batting_details[players]['Match type'] == 'T20' and batting_details[players]['Average'] <= 32 and batting_details[players]['Eco'] <= 8:
             playing_11.append(players)
             continue
         else:
