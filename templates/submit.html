@@ -49,12 +49,14 @@ color: whitesmoke;
 
     <br><br>
     <div class='prod-center'>
-        {% if match_type == '1' %}
-        <h3>Your Test team must have these players based on their performance in {{ year }}</h3>
-        {% elif match_type == '2' %}
-        <h3>Your ODI team must have these players based on their performance in {{ year }}</h3>
-        {% elif match_type == '3' %}
-        <h3>Your T20 team must have these players based on their performance in {{ year }}</h3>
+        {% if match_type == 1 %}
+           <h3>Your Test team must have these players based on their performance in {{ year }}</h3>
+        {% elif match_type == 2 %}
+           <h3>Your ODI team must have these players based on their performance in {{ year }}</h3>
+        {% elif match_type == 3 %}
+           <h3>Your T20 team must have these players based on their performance in {{ year }}</h3>
+        {% else %}
+           <h3>Your {{match_type}} team must have these players based on their performance in {{ year }}</h3>
         {% endif %}
         <div class="row">
         {% for key, value in final_players.items() %}
