@@ -49,13 +49,17 @@ color: whitesmoke;
 
     <br><br>
     <div class='prod-center'>
-           <h3>Your team must have these players based on their performance in {{ year }}</h3>
+        {% if final_players|length == 0 %}
+        <h3>No records found for the requested year</h3>
+        {% else %}
+        <h3>Your team must have these players based on their performance in {{ year }}</h3>
+        {% endif %}
         <div class="row">
         {% for key, value in final_players.items() %}
             {% if value['Role'] == 'Batsman' %}
             <div class="col-md-4 mx-auto my-5">
                 <div class="card" style="width: 15rem;">
-                  <img src="/static/India/{{value['Player name']}}.jpg" class="card-img-top" alt="...">
+                  <img src="/static/{{value['Team']}}/{{value['Player name']}}.jpg" class="card-img-top" alt="...">
                   <div class="card-body">
                     <h5 class="card-title">{{ value['Player name'] }}</h5>
                       <p class="card-text"><b>Mat:</b> {{ value['Matches'] }}  <b>Inn:</b> {{ value['Innings'] }} <b>Runs:</b> {{ value['Runs'] }}</p>
@@ -70,7 +74,7 @@ color: whitesmoke;
             {% if value['Role'] == 'Bowler' %}
             <div class="col-md-4 mx-auto my-5">
                 <div class="card" style="width: 15rem;">
-                  <img src="/static/India/{{value['Player name']}}.jpg" class="card-img-top" alt="...">
+                  <img src="/static/{{value['Team']}}/{{value['Player name']}}.jpg" class="card-img-top" alt="...">
                   <div class="card-body">
                     <h5 class="card-title">{{ value['Player name'] }}</h5>
                        <p class="card-text"><b>Mat:</b> {{ value['Matches'] }}  <b>Ovs:</b> {{ value['Overs'] }} <b>Balls:</b> {{ value['Balls'] }}</p
