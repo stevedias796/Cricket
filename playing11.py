@@ -5,7 +5,7 @@ import datetime
 import base64
 import os
 import multiprocessing
-import json
+import operator
 
 app = Flask(__name__)
 
@@ -21,6 +21,7 @@ def home():
 def submit(name, type, year):
     print(datetime.datetime.now())
     #batting_result = best_batsmen(name, type, year)
+    name = name.replace('|','/')
     manager = multiprocessing.Manager()
     return_dict = manager.dict()
     return_dict1 = manager.dict()
@@ -38,7 +39,7 @@ def submit(name, type, year):
     print(return_dict, len(return_dict))
     print(datetime.datetime.now())
     if request.method == "GET":
-        return json.dumps(return_dict.copy())
+        return jsonify(return_dict)
     elif request.method == "POST":
         return render_template('submit.html', final_players=return_dict, match_type=type, year=year)
     else:
@@ -88,6 +89,7 @@ def best_economy(url, player_name):
 
 
 def best_batsmen(name, type, year, batting_details):
+    teamname = name.split('/')
     playing_11 = []
     not_playing_11 = []
     years = year.split('-')
@@ -112,12 +114,15 @@ def best_batsmen(name, type, year, batting_details):
     for i in reversed(range(int(no_years) + 1)):
         if i < int(min_years):
             break
-        url = 'https://www.cricbuzz.com/cricket-team/India/2/stats-table/most-runs/' + str(type) + '/' + str(
+        url = 'https://www.cricbuzz.com/cricket-team/'+name+'/stats-table/most-runs/' + str(type) + '/' + str(
             i) + '/all/'
         #print(url)
         url_data = requests.get(url)
         soup = BeautifulSoup(url_data.text, 'html.parser')
-        table_cont = soup.find_all('tbody')[0].find_all('tr', {'class': 'cb-srs-stats-tr'})
+        try:
+            table_cont = soup.find_all('tbody')[0].find_all('tr', {'class': 'cb-srs-stats-tr'})
+        except:
+            continue
         #print(table_cont)
         if table_cont is not None:
             for tr in table_cont:
@@ -133,10 +138,10 @@ def best_batsmen(name, type, year, batting_details):
                 #four = tds[6].get_text()
                 #six = tds[7].get_text()
                 '''Check if player is in best avg list and best strike rate list'''
-                avg_url = 'https://www.cricbuzz.com/cricket-team/India/2/stats-table/highest-avg/' + str(
+                avg_url = 'https://www.cricbuzz.com/cricket-team/'+name+'/stats-table/highest-avg/' + str(
                     type) + '/' + str(i) + '/all'
                 lv_return = best_avg_sr(avg_url, player)
-                sr_url = 'https://www.cricbuzz.com/cricket-team/India/2/stats-table/highest-sr/' + str(
+                sr_url = 'https://www.cricbuzz.com/cricket-team/'+name+'/stats-table/highest-sr/' + str(
                     type) + '/' + str(i) + '/all'
                 lv_ret = best_avg_sr(sr_url, player)
                 if (match_type != 'Test' and lv_return == 0 and lv_ret == 0) or (match_type == 'Test' and lv_return == 0):
@@ -145,6 +150,7 @@ def best_batsmen(name, type, year, batting_details):
                         batting_details[player] = {
                             'Match type': match_type,
                             'Year': year,
+                            'Team': teamname[0],
                             'Player name': player,
                             'Matches': int(matches),
                             'Innings': int(innings),
@@ -157,6 +163,7 @@ def best_batsmen(name, type, year, batting_details):
                         batting_details[player] = {
                             'Match type': match_type,
                             'Year': year,
+                            'Team': teamname[0],
                             'Player name': player,
                             'Matches': int(batting_details[player]['Matches']) + int(matches),
                             'Innings': int(batting_details[player]['Innings'])+ int(innings),
@@ -191,6 +198,7 @@ def best_batsmen(name, type, year, batting_details):
         batting_details[players] = {
             'Match type': batting_details[players]['Match type'],
             'Year': batting_details[players]['Year'],
+            'Team': teamname[0],
             'Player name': players,
             'Matches': batting_details[players]['Matches'],
             'Innings': batting_details[players]['Innings'],
@@ -225,6 +233,7 @@ def best_batsmen(name, type, year, batting_details):
 
 
 def best_bowlers(name, type, year, batting_details):
+    teamname = name.split('/')
     playing_11 = []
     not_playing_11 = []
     match_type = ''
@@ -249,10 +258,13 @@ def best_bowlers(name, type, year, batting_details):
     for i in reversed(range(int(no_years) + 1)):
         if i < int(min_years):
             break
-        url = 'https://www.cricbuzz.com/cricket-team/India/2/stats-table/most-wickets/' + str(type) + '/' + str(i) + '/all/'
+        url = 'https://www.cricbuzz.com/cricket-team/'+name+'/stats-table/most-wickets/' + str(type) + '/' + str(i) + '/all/'
         url_data = requests.get(url)
         soup = BeautifulSoup(url_data.text, 'html.parser')
-        table_cont = soup.find_all('tbody')[0].find_all('tr', {'class': 'cb-srs-stats-tr'})
+        try:
+            table_cont = soup.find_all('tbody')[0].find_all('tr', {'class': 'cb-srs-stats-tr'})
+        except:
+            continue
         if table_cont is not None:
             for tr in table_cont:
                 tds = tr.find_all('td')
@@ -269,10 +281,10 @@ def best_bowlers(name, type, year, batting_details):
                 #four_w = tds[7].get_text()
                 #five_w = tds[8].get_text()
                 '''Check if player is in best avg list and best strike rate list'''
-                avg_url = 'https://www.cricbuzz.com/cricket-team/India/2/stats-table/lowest-avg/' + str(type) + '/' + str(i) + '/all'
+                avg_url = 'https://www.cricbuzz.com/cricket-team/'+name+'/stats-table/lowest-avg/' + str(type) + '/' + str(i) + '/all'
                 lv_return = best_avg_sr(avg_url, player)
 
-                sr_url = 'https://www.cricbuzz.com/cricket-team/India/2/stats-table/lowest-econ/' + str(type) + '/' + str(i) + '/all'
+                sr_url = 'https://www.cricbuzz.com/cricket-team/'+name+'/stats-table/lowest-econ/' + str(type) + '/' + str(i) + '/all'
                 lv_ret , player_economy = best_economy(sr_url, player)
                 #print(player_economy)
                 if lv_return == 0 or lv_ret == 0:
@@ -282,6 +294,7 @@ def best_bowlers(name, type, year, batting_details):
                         batting_details[player] = {
                             'Match type': match_type,
                             'Year': year,
+                            'Team': teamname[0],
                             'Player name': player,
                             'Matches': int(matches),
                             'Overs': int(overs),
@@ -296,6 +309,7 @@ def best_bowlers(name, type, year, batting_details):
                         batting_details[player] = {
                             'Match type': match_type,
                             'Year': year,
+                            'Team': teamname[0],
                             'Player name': player,
                             'Matches': int(batting_details[player]['Matches']) + int(matches),
                             'Overs': int(batting_details[player]['Overs']) + int(overs),
@@ -332,6 +346,7 @@ def best_bowlers(name, type, year, batting_details):
         batting_details[players] = {
             'Match type': batting_details[players]['Match type'],
             'Year': batting_details[players]['Year'],
+            'Team': teamname[0],
             'Player name': players,
             'Matches': batting_details[players]['Matches'],
             'Overs': batting_details[players]['Overs'],
