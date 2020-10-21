@@ -24,7 +24,7 @@
             var matchtype = document.getElementById('type').value;
             var from_year = document.getElementById('min_year').value;
             var to_year = document.getElementById('max_year').value;
-	    if(from_year != '2020' && from_year > to_year)
+	    if(from_year > to_year)
 	    {
 		    alert("From year cannot be greater than To year");
 		    return false;
@@ -55,6 +55,10 @@
 
     <br><br>
     <div class='prod-center'>
+<H4> Get the best team squad </H4>
+<Br>
+<P> <b>Select your inputs and get the best team for the give years</b></p>
+
         <form name="cric_form" method="POST">
 
       <div class="form-group">
