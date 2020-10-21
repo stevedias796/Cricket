@@ -49,7 +49,10 @@ def submit(name, type, year):
 def best_avg_sr(url, player_name):
     url_data = requests.get(url)
     soup = BeautifulSoup(url_data.text, 'html.parser')
-    table_cont = soup.find_all('tbody')[0].find_all('tr', {'class': 'cb-srs-stats-tr'})
+    try:
+        table_cont = soup.find_all('tbody')[0].find_all('tr', {'class': 'cb-srs-stats-tr'})
+    except:
+        return 1
     if table_cont is not None:
         for tr in table_cont:
             tds = tr.find_all('td')
@@ -65,7 +68,10 @@ def best_economy(url, player_name):
     player_economy = {}
     url_data = requests.get(url)
     soup = BeautifulSoup(url_data.text, 'html.parser')
-    table_cont = soup.find_all('tbody')[0].find_all('tr', {'class': 'cb-srs-stats-tr'})
+    try:
+        table_cont = soup.find_all('tbody')[0].find_all('tr', {'class': 'cb-srs-stats-tr'})
+    except:
+        return 1, player_economy
     if table_cont is not None:
         for tr in table_cont:
             tds = tr.find_all('td')
