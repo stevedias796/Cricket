@@ -6,11 +6,19 @@ import base64
 import os
 import multiprocessing
 import json
+import pymongo
 
 app = Flask(__name__)
 
 directory = os.path.dirname(__file__)
 
+myClient = pymongo.MongoClient(os.environ['monogo_client'])
+
+# create database
+myDb = myClient['playerDB']
+
+#create collection
+myCollection = myDb['teams']
 
 @app.route('/home')
 def home():
@@ -19,31 +27,55 @@ def home():
 
 @app.route('/submit/<string:name>/<int:type>/<string:year>', methods=['GET', 'POST'])
 def submit(name, type, year):
-    print(datetime.datetime.now())
-    #batting_result = best_batsmen(name, type, year)
-    name = name.replace('|','/')
-    manager = multiprocessing.Manager()
-    return_dict = manager.dict()
-    return_dict1 = manager.dict()
-    #batting_details = {}
-    #jobs = []
-    p1 = multiprocessing.Process(target=best_batsmen, args=(name, type, year, return_dict))
-    p2 = multiprocessing.Process(target=best_bowlers, args=(name, type, year, return_dict1))
-    p1.start()
-    p2.start()
-    p1.join()
-    p2.join()
-    #bowling_result = best_bowlers(name, type, year)
-    #print(bowling_result, len(bowling_result))
-    return_dict.update(return_dict1)
-    print(return_dict, len(return_dict))
-    print(datetime.datetime.now())
-    if request.method == "GET":
-        return json.dumps(return_dict.copy())
-    elif request.method == "POST":
-        return render_template('submit.html', final_players=return_dict, match_type=type, year=year)
+    today = datetime.date.today()
+    name = name.replace('|', '/')
+
+    data = myCollection.find_one({'team': name, 'type': type, 'year': year}, {'_id': 0, 'result': 1})
+    '''for res in mydoc:
+        print(res)
+        return "<h1>"+res+"</h1>"
+    '''
+    print(data)
+    if data is not None:
+        if request.method == "GET":
+            return json.dumps(data['result'])
+        elif request.method == "POST":
+            return render_template('submit.html', final_players=data['result'], match_type=type, year=year)
+        else:
+            return "Invalid Action"
     else:
-        return "Invalid Action"
+        #batting_result = best_batsmen(name, type, year)
+        manager = multiprocessing.Manager()
+        return_dict = manager.dict()
+        return_dict1 = manager.dict()
+        #batting_details = {}
+        #jobs = []
+        p1 = multiprocessing.Process(target=best_batsmen, args=(name, type, year, return_dict))
+        p2 = multiprocessing.Process(target=best_bowlers, args=(name, type, year, return_dict1))
+        p1.start()
+        p2.start()
+        p1.join()
+        p2.join()
+        #bowling_result = best_bowlers(name, type, year)
+        #print(bowling_result, len(bowling_result))
+        return_dict.update(return_dict1)
+        print(return_dict, len(return_dict))
+        today_year = str(today.year)
+        if year != today_year + '-' + today_year:
+            new_data = {
+                'team': name,
+                'type': type,
+                'year': year,
+                'result': dict(return_dict)
+            }
+            myCollection.insert_one(new_data)
+        print(datetime.datetime.now())
+        if request.method == "GET":
+            return json.dumps(return_dict.copy())
+        elif request.method == "POST":
+            return render_template('submit.html', final_players=return_dict, match_type=type, year=year)
+        else:
+            return "Invalid Action"
 
 
 def best_avg_sr(url, player_name):
